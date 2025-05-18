@@ -1,21 +1,30 @@
+require('dotenv').config();
 const express = require('express');
-const connectDB = require('./config/connection');
-const userRoute = require('./routes/user.route');
-const blogRoute = require('./routes/blog.route');
+const session = require('express-session');
+const { connectDB } = require('./config/connection');
+const { routes } = require('./routes/express.handler');
 const cors = require('cors');
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
+
+app.use(session({
+    secret: process.env.SESSION_SECRET_KEY,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
 
 connectDB();
 
 app.get('/', (req, res) => res.send('Blog CMS Dashboard API'));
-app.use('/cms/v1/user/', userRoute);
-app.use('/cms/v1/blog/', blogRoute);
 
+routes(app);
 
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, function () {
-    console.log(`Server is running on port :: --> ${PORT}`);
-})
+    console.log(`Server is running on port :: ${PORT}`);
+});

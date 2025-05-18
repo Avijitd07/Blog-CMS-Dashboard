@@ -1,19 +1,15 @@
-const User = require('../../models/user.entity');
-const bcrypt = require('bcryptjs');
+const { UserRegistrationService } = require('../../service/user-registration.service');
 
 async function userRegistration(req, res) {
   try {
-    const { username, email, password } = req.body;
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) return res.status(400).json({ message: 'User already in exist.' });
+    const body = req.body;
 
-    const encryptedUserPassword = await bcrypt.hash(password, 10);
-
-    const user = await user.create({ username, email, password: encryptedUserPassword });
+    const userRegistrationService = new UserRegistrationService();
+    const user = await userRegistrationService.register(body);
 
     res.status(201).json({ status: true, message: 'User registered successfully.', data: user });
   } catch (error) {
-    console.log('Error:', error.message);
+    console.log('userRegistration :: Error:', error.message);
     res.status(500).json({ status: false, message: 'Server error' });
   }
 };
